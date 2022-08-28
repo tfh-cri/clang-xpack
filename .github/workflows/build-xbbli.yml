@@ -20,6 +20,9 @@
 
 
 name: 'Build xPack LLVM clang xbbli'
+concurrency:
+  group: "${{ github.ref_name }}-${{ github.head_ref }}"
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
@@ -27,20 +30,23 @@ on:
       version:
         description: 'The semver of the release'
         required: false
-        default: 'current'
+        default: '<get from scripts/VERSION>'
 
 jobs:
 
   linux-x64:
     name: 'Linux Intel - LLVM clang ${{ github.event.inputs.version }} build'
-    timeout-minutes: 5760 # 4 days
-    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 600
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+          - linux64
+          - win64
     steps:
-      - name: 'Machine'
-        run: |
-          uname -a
-          node --version
-          npm --version
+      - name: 'Machine - ${{ matrix.platform}} '
+        run: uname -a
 
       - name: 'Checkout'
         uses: actions/checkout@v2
@@ -48,16 +54,16 @@ jobs:
           fetch-depth: 3
           submodules: true
 
-      - name: 'Clean working area'
-        run: rm -rf ~/Work/clang-${{ github.event.inputs.version }}*
+      - name: 'fetch xpack buildbox container'
+        run: docker pull ilegeul/ubuntu:amd64-18.04-xbb-v3.4
+      # shouldn't be necessary on a hosted runner?
+      # - name: 'Clean working area'
+      #   run: rm -rf ~/Work/clang-${{ github.event.inputs.version }}*
 
-      - name: 'Build Linux x64 binary'
-        timeout-minutes: 1440
-        run: bash scripts/helper/build.sh --version "${{ github.event.inputs.version }}" --linux64
+      - name: 'Build ${{ matrix.platform }} binary'
+        timeout-minutes: 600
+        run: bash scripts/helper/build.sh --version "${{ github.event.inputs.version }}" --${{ matrix.platform }}
     
-      - name: 'Build Windows x64 binary'
-        timeout-minutes: 1440
-        run: bash scripts/helper/build.sh --version "${{ github.event.inputs.version }}" --win64
     
       - name: 'Publish pre-release'
         # https://github.com/ncipollo/release-action
@@ -72,10 +78,7 @@ jobs:
           omitBodyDuringUpdate: true
           omitDraftDuringUpdate: true
           omitNameDuringUpdate: true
-          owner: 'xpack-dev-tools'
           prerelease: true
           replacesArtifacts: true
-          repo: 'pre-releases'
           tag: 'test'
-          token: ${{ secrets.PUBLISH_TOKEN }}
 

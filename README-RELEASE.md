@@ -29,7 +29,7 @@ since they are usually followed by a X.Y.1 release in several month.
 ### Increase the version
 
 Determine the version (like `14.0.6`) and update the `scripts/VERSION`
-file; the format is `14.0.6-2`. The fourth number is the xPack release number
+file; the format is `14.0.6-1`. The fourth number is the xPack release number
 of this version. A fifth number will be added when publishing
 the package on the `npm` server.
 
@@ -39,7 +39,7 @@ Check GitHub issues and pull requests:
 
 - <https://github.com/xpack-dev-tools/clang-xpack/issues/>
 
-and fix them; assign them to a milestone (like `14.0.6-2`).
+and fix them; assign them to a milestone (like `14.0.6-1`).
 
 ### Check `README.md`
 
@@ -57,8 +57,8 @@ but in the web release files.
 
 - open the `CHANGELOG.md` file
 - check if all previous fixed issues are in
-- add a new entry like _- v14.0.6-2 prepared_
-- commit with a message like _prepare v14.0.6-2_
+- add a new entry like _- v14.0.6-1 prepared_
+- commit with a message like _prepare v14.0.6-1_
 
 Note: if you missed to update the `CHANGELOG.md` before starting the build,
 edit the file and rerun the build, it should take only a few minutes to
@@ -75,7 +75,7 @@ repository, in the `xpack-dev-tools/llvm-project` Git repo:
 - cherry pick the commit to _clang: add /Library/... to headers search path_ from a previous release;
   enable commit immediately
 - push branch to `origin`
-- add a `v14.0.6-2-xpack` tag; enable push to origin
+- add a `v14.0.6-1-xpack` tag; enable push to origin
 - select the commit with the patch
 - save as patch
 - move to `patches`
@@ -184,11 +184,11 @@ This command uses the `xpack-develop` branch of this repo.
 
 The builds take about 13 hours to complete:
 
-- `xbbmi`: 1h22 (vm)
-- `xbbma`: 31m
-- `xbbli`: 1h52 (44m Linux, 1h08 Windows)
-- `xbbla64`: 9h35 (!)
-- `xbbla32`: 7h46
+- `xbbmi`: 1h25m (vm)
+- `xbbma`: 31 min
+- `xbbli`: 3h20m (Windows included)
+- `xbbla64`: 9h37m (!)
+- `xbbla32`: 8h
 
 The workflow result and logs are available from the
 [Actions](https://github.com/xpack-dev-tools/clang-xpack/actions/) page.
@@ -266,23 +266,21 @@ Install the binaries on all platforms.
 On GNU/Linux and macOS systems, use:
 
 ```sh
-.../xpack-clang-14.0.6-2/bin/clang --version
+.../xpack-clang-14.0.6-1/bin/clang --version
 xPack x86_64 clang version 14.0.6
 ```
 
 On Windows use:
 
 ```dos
-...\xpack-clang-14.0.6-2\bin\clang --version
+...\xpack-clang-14.0.6-1\bin\clang --version
 xPack x86_64 clang version 14.0.6
 ```
 
 ## Create a new GitHub pre-release draft
 
-- in `CHANGELOG.md`, add the release date and a message like _- v14.0.6-2 released_
-- commit with _CHANGELOG update_
-- check and possibly update the `templates/body-github-release-liquid.md`
-- push the `xpack-develop` branch
+- in `CHANGELOG.md`, add the release date and a message like _- v14.0.6-1 released_
+- commit and push the `xpack-develop` branch
 - run the xPack action `trigger-workflow-publish-release`
 
 The workflow result and logs are available from the
@@ -290,8 +288,8 @@ The workflow result and logs are available from the
 
 The result is a
 [draft pre-release](https://github.com/xpack-dev-tools/clang-xpack/releases/)
-tagged like **v14.0.6-2** (mind the dash in the middle!) and
-named like **xPack LLVM clang v14.0.6-2** (mind the dash),
+tagged like **v14.0.6-1** (mind the dash in the middle!) and
+named like **xPack LLVM clang v14.0.6-1** (mind the dash),
 with all binaries attached.
 
 - edit the draft and attach it to the `xpack-develop` branch (important!)
@@ -299,8 +297,7 @@ with all binaries attached.
 
 ## Prepare a new blog post
 
-- check and possibly update the `templates/body-jekyll-release-*-liquid.md`
-- run the xPack action `generate-jekyll-post`; this will leave a file
+Run the xPack action `generate-jekyll-post`; this will leave a file
 on the Desktop.
 
 In the `xpack/web-jekyll` GitHub repo:
@@ -314,7 +311,7 @@ If any, refer to closed
 ## Update the preview Web
 
 - commit the `develop` branch of `xpack/web-jekyll` GitHub repo;
-  use a message like _xPack LLVM clang v14.0.6-2 released_
+  use a message like **xPack LLVM clang v14.0.6-1 released**
 - push to GitHub
 - wait for the GitHub Pages build to complete
 - the preview web is <https://xpack.github.io/web-preview/news/>
@@ -356,18 +353,18 @@ watching this project.
 - compare the SHA sums with those shown by `cat *.sha`
 - check the executable names
 - commit all changes, use a message like
-  _package.json: update urls for 14.0.6-2.1 release_ (without _v_)
+  `package.json: update urls for 14.0.6-1.1 release` (without `v`)
 
 ## Publish on the npmjs.com server
 
 - select the `xpack-develop` branch
 - check the latest commits `npm run git-log`
-- update `CHANGELOG.md`, add a line like _- v14.0.6-2.1 published on npmjs.com_
-- commit with a message like _CHANGELOG: publish npm v14.0.6-2.1_
+- update `CHANGELOG.md`, add a line like _- v14.0.6-1.1 published on npmjs.com_
+- commit with a message like _CHANGELOG: publish npm v14.0.6-1.1_
 - `npm pack` and check the content of the archive, which should list
   only the `package.json`, the `README.md`, `LICENSE` and `CHANGELOG.md`;
   possibly adjust `.npmignore`
-- `npm version 14.0.6-2.1`; the first 5 numbers are the same as the
+- `npm version 14.0.6-1.1`; the first 5 numbers are the same as the
   GitHub release; the sixth number is the npm specific version
 - the commits and the tag should have been pushed by the `postversion` script;
   if not, push them with `git push origin --tags`
@@ -396,12 +393,12 @@ The tests results are available from the
 When the release is considered stable, promote it as `latest`:
 
 - `npm dist-tag ls @xpack-dev-tools/clang`
-- `npm dist-tag add @xpack-dev-tools/clang@14.0.6-2.1 latest`
+- `npm dist-tag add @xpack-dev-tools/clang@14.0.6-1.1 latest`
 - `npm dist-tag ls @xpack-dev-tools/clang`
 
 In case the previous version is not functional and needs to be unpublished:
 
-- `npm unpublish @xpack-dev-tools/clang@14.0.6-2.X`
+- `npm unpublish @xpack-dev-tools/clang@14.0.6-1.X`
 
 ## Update the Web
 
@@ -423,7 +420,7 @@ In case the previous version is not functional and needs to be unpublished:
 
 - in a separate browser windows, open [TweetDeck](https://tweetdeck.twitter.com/)
 - using the `@xpack_project` account
-- paste the release name like **xPack LLVM clang v14.0.6-2 released**
+- paste the release name like **xPack LLVM clang v14.0.6-1 released**
 - paste the link to the Web page
   [release](https://xpack.github.io/clang/releases/)
 - click the **Tweet** button
